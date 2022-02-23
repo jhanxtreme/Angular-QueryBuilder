@@ -1,13 +1,13 @@
 import { FormBuilder, FormControl } from '@angular/forms';
 import { Component } from '@angular/core';
-import { QueryBuilderClassNames, QueryBuilderConfig } from 'angular2-query-builder';
+import { Field, GroupFieldsConfig, QueryBuilderClassNames, QueryBuilderConfig } from 'angular2-query-builder';
 
 @Component({
   selector: 'app-root',
   template: `
   <h2>Vanilla</h2>
   <br>
-  <query-builder [formControl]='queryCtrl' [config]='currentConfig' [allowRuleset]='allowRuleset' [allowCollapse]='allowCollapse' [persistValueOnFieldChange]='persistValueOnFieldChange'>
+  <query-builder [groupFieldsConfig]="groupConfig" [formControl]='queryCtrl' [config]='currentConfig' [allowRuleset]='allowRuleset' [allowCollapse]='allowCollapse' [persistValueOnFieldChange]='persistValueOnFieldChange'>
     <ng-container *queryInput="let rule; type: 'textarea'; let getDisabledState=getDisabledState">
       <textarea class="text-input text-area" [(ngModel)]="rule.value" [disabled]=getDisabledState()
         placeholder="Custom Textarea"></textarea>
@@ -38,14 +38,13 @@ import { QueryBuilderClassNames, QueryBuilderConfig } from 'angular2-query-build
         <label><input type="checkbox" [(ngModel)]='persistValueOnFieldChange'>Persist Values on Field Change</label>
       </div>
     </div>
-
     <textarea class="output">{{query | json}}</textarea>
   </div>
   <br>
   <h2>Custom Material</h2>
   <br>
   <mat-card>
-  <query-builder [(ngModel)]='query' [config]='currentConfig' [allowRuleset]='allowRuleset' [allowCollapse]='allowCollapse' [persistValueOnFieldChange]='persistValueOnFieldChange'>
+  <query-builder [groupFieldsConfig]="groupConfig" [(ngModel)]='query' [config]='currentConfig' [allowRuleset]='allowRuleset' [allowCollapse]='allowCollapse' [persistValueOnFieldChange]='persistValueOnFieldChange'>
     <ng-container *queryButtonGroup="let ruleset; let addRule=addRule; let addRuleSet=addRuleSet; let removeRuleSet=removeRuleSet">
       <button type="button" mat-icon-button color="primary" (click)="addRule()">
         <mat-icon>add</mat-icon></button>
@@ -72,7 +71,7 @@ import { QueryBuilderClassNames, QueryBuilderConfig } from 'angular2-query-build
       <mat-form-field>
         <mat-select [(ngModel)]="rule.entity" (ngModelChange)="onChange($event, rule)">
           <mat-option *ngFor="let entity of entities" [value]="entity.value">
-          {{entity.name}}
+            {{entity.name}}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -80,9 +79,18 @@ import { QueryBuilderClassNames, QueryBuilderConfig } from 'angular2-query-build
     <ng-container *queryField="let rule; let fields=fields; let onChange=onChange; let getFields = getFields">
       <mat-form-field>
         <mat-select [(ngModel)]="rule.field" (ngModelChange)="onChange($event, rule)">
+        <ng-container *ngIf="groupConfig.length">
+          <mat-optgroup *ngFor="let group of groupConfig" [label]="getGroupFieldsLabel(group)">  
+            <mat-option *ngFor="let field of getGroupFields(group.fields)" [value]="field.value">
+              {{ field.name }}
+            </mat-option>
+          </mat-optgroup>
+        </ng-container>
+        <ng-container *ngIf="!groupConfig.length">
           <mat-option *ngFor="let field of getFields(rule.entity)" [value]="field.value">
             {{ field.name }}
           </mat-option>
+        </ng-container>
         </mat-select>
       </mat-form-field>
     </ng-container>
@@ -144,12 +152,13 @@ import { QueryBuilderClassNames, QueryBuilderConfig } from 'angular2-query-build
   <br>
   <h2>Bootstrap</h2>
   <br>
-  <query-builder [(ngModel)]='query' [classNames]='bootstrapClassNames' [config]='currentConfig' [allowRuleset]='allowRuleset' [allowCollapse]='allowCollapse' [persistValueOnFieldChange]='persistValueOnFieldChange'>
+  <query-builder [groupFieldsConfig]="groupConfig" [(ngModel)]='query' [classNames]='bootstrapClassNames' [config]='currentConfig' [allowRuleset]='allowRuleset' [allowCollapse]='allowCollapse' [persistValueOnFieldChange]='persistValueOnFieldChange'>
     <div class="col-auto" *queryInput="let rule; type: 'textarea'">
       <textarea class="form-control" [(ngModel)]="rule.value"
         placeholder="Custom Textarea"></textarea>
     </div>
   </query-builder>
+  
   `,
   styles: [`
   /deep/ html {
@@ -272,6 +281,18 @@ export class AppComponent {
     }
   };
 
+  public groupConfig: Array<GroupFieldsConfig> = [
+    {
+      label: "Group 1",
+      fields: ["Gender", "Name", "Age"]
+    },
+    {
+      label: "Group 2",
+      fields: ["Notes", "Educated","Birthday", "School", "Occupation"]
+    }
+  ]
+
+
   public config: QueryBuilderConfig = {
     fields: {
       age: {name: 'Age', type: 'number'},
@@ -305,7 +326,7 @@ export class AppComponent {
 
   public currentConfig: QueryBuilderConfig;
   public allowRuleset: boolean = true;
-  public allowCollapse: boolean;
+  public allowCollapse: boolean = true;
   public persistValueOnFieldChange: boolean = false;
 
   constructor(
@@ -322,4 +343,20 @@ export class AppComponent {
   changeDisabled(event: Event) {
     (<HTMLInputElement>event.target).checked ? this.queryCtrl.disable() : this.queryCtrl.enable();
   }
+
+  getGroupFields(fields: Array<string>): Array<Field> {
+    let result = [];
+    Object.keys(this.currentConfig.fields).filter((key: string) => {
+       const f = this.currentConfig.fields[key];
+       if(f && fields.indexOf(f.name) > -1){
+         result.push(f);
+       }
+    });
+    return result;
+  }
+
+  getGroupFieldsLabel(group: GroupFieldsConfig): string {
+    return !!group.label ? group.label : 'No Label';
+  }
+  
 }

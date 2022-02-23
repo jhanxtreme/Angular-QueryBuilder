@@ -13,7 +13,8 @@
     "copy-editor": "copyfiles \"./editor/**/*\" dist",
     "copy-lib": "npm install ../dist/angular2-query-builder",
     "prebuild:aot": "npm run copy-lib",
-    "prebuild:jit": "npm run copy-lib"
+    "prebuild:jit": "npm run copy-lib",
+    "dev": "rimraf node_modules && ng serve"
   },
   "private": true,
   "dependencies": {

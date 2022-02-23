@@ -33,6 +33,7 @@ import {
   Rule,
   RuleSet,
   EmptyWarningContext,
+  GroupFieldsConfig,
 } from './query-builder.interfaces';
 import {
   ChangeDetectorRef,
@@ -49,6 +50,7 @@ import {
   ViewChild,
   ElementRef
 } from '@angular/core';
+import { QueryBuilderService } from '../query-builder.service';
 
 export const CONTROL_VALUE_ACCESSOR: any = {
   provide: NG_VALUE_ACCESSOR,
@@ -111,6 +113,7 @@ export class QueryBuilderComponent implements OnInit, OnChanges, ControlValueAcc
     category: ['=', '!=', 'in', 'not in'],
     boolean: ['=']
   };
+  public groupedFields: Array<GroupFieldsConfig> = [];
   @Input() disabled: boolean;
   @Input() data: RuleSet = { condition: 'and', rules: [] };
 
@@ -125,6 +128,7 @@ export class QueryBuilderComponent implements OnInit, OnChanges, ControlValueAcc
   @Input() operatorMap: { [key: string]: string[] };
   @Input() parentValue: RuleSet;
   @Input() config: QueryBuilderConfig = { fields: {} };
+  @Input() groupFieldsConfig: Array<GroupFieldsConfig> = [];
   @Input() parentArrowIconTemplate: QueryArrowIconDirective;
   @Input() parentInputTemplates: QueryList<QueryInputDirective>;
   @Input() parentOperatorTemplate: QueryOperatorDirective;
@@ -163,7 +167,7 @@ export class QueryBuilderComponent implements OnInit, OnChanges, ControlValueAcc
   private removeButtonContextCache = new Map<Rule, RemoveButtonContext>();
   private buttonGroupContext: ButtonGroupContext;
 
-  constructor(private changeDetectorRef: ChangeDetectorRef) { }
+  constructor(private changeDetectorRef: ChangeDetectorRef, private service: QueryBuilderService) { }
 
   // ----------OnInit Implementation----------
 
@@ -172,6 +176,13 @@ export class QueryBuilderComponent implements OnInit, OnChanges, ControlValueAcc
   // ----------OnChanges Implementation----------
 
   ngOnChanges(changes: SimpleChanges) {
+
+    // preserve state
+    if(this.groupFieldsConfig.length > 0){
+      this.service.setGroupedFields(this.groupFieldsConfig)
+    }
+    this.groupedFields = this.service.getGroupedFields();
+
     const config = this.config;
     const type = typeof config;
     if (type === 'object') {
@@ -193,6 +204,25 @@ export class QueryBuilderComponent implements OnInit, OnChanges, ControlValueAcc
     } else {
       throw new Error(`Expected 'config' must be a valid object, got ${type} instead.`);
     }
+  }
+
+  // ----------Has Group Config Fields-----------
+
+  get hasGroupFieldConfig(): boolean {
+    if (!Array.isArray(this.groupedFields)) return false;
+    return !!this.groupedFields.length;
+  }
+
+  // ----------Get fields by group-----------
+
+  getGroupFields(fields: Array<string>): Array<Field> {
+    return this.fields.filter((f: Field) => fields.indexOf(f.name) > -1);
+  }
+
+  // ----------Get group label-----------
+
+  getGroupFieldsLabel(group: GroupFieldsConfig): string {
+    return !!group.label ? group.label : 'No Label';
   }
 
   // ----------Validator Implementation----------

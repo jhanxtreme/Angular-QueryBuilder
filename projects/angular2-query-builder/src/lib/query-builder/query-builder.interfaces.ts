@@ -86,6 +86,11 @@ export interface QueryBuilderClassNames {
   inputControlSize?: string;
 }
 
+export interface GroupFieldsConfig {
+  label: string;
+  fields: Array<string>;
+}
+
 export interface QueryBuilderConfig {
   fields: FieldMap;
   entities?: EntityMap;
