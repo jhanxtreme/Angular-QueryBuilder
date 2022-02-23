@@ -1,22 +1,18 @@
 import { Injectable } from '@angular/core';
-import { GroupFieldsConfig } from './query-builder/query-builder.interfaces';
+import { Subject } from 'rxjs/internal/Subject';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QueryBuilderService {
 
-  private _groupedFields: Array<GroupFieldsConfig> = [];
+  private _source = new Subject();
+  public currentMessage = this._source.asObservable();
 
   constructor() { }
 
-  getGroupedFields(): Array<GroupFieldsConfig> {
-    return this._groupedFields;
-  }
-
-  setGroupedFields(items: Array<GroupFieldsConfig> = []): void {
-    if (!items) return;
-    this._groupedFields = JSON.parse(JSON.stringify(items));
+  changeMessage(message: any) {
+    this._source.next(message);
   }
 
 }

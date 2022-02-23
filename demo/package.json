@@ -14,7 +14,7 @@
     "copy-lib": "npm install ../dist/angular2-query-builder",
     "prebuild:aot": "npm run copy-lib",
     "prebuild:jit": "npm run copy-lib",
-    "dev": "rimraf node_modules && ng serve"
+    "dev": "npm run copy-lib && ng serve"
   },
   "private": true,
   "dependencies": {

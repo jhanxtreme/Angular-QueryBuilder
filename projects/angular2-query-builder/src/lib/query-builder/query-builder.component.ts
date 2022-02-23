@@ -142,7 +142,7 @@ export class QueryBuilderComponent implements OnInit, OnChanges, ControlValueAcc
   @Input() parentTouchedCallback: () => void;
   @Input() persistValueOnFieldChange: boolean = false;
 
-  @ViewChild('treeContainer', {static: true}) treeContainer: ElementRef;
+  @ViewChild('treeContainer', { static: true }) treeContainer: ElementRef;
 
   @ContentChild(QueryButtonGroupDirective) buttonGroupTemplate: QueryButtonGroupDirective;
   @ContentChild(QuerySwitchGroupDirective) switchGroupTemplate: QuerySwitchGroupDirective;
@@ -171,17 +171,19 @@ export class QueryBuilderComponent implements OnInit, OnChanges, ControlValueAcc
 
   // ----------OnInit Implementation----------
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.service.currentMessage.subscribe((data: Array<GroupFieldsConfig>) => {
+      this.groupedFields = data;
+    });
+  }
 
   // ----------OnChanges Implementation----------
 
   ngOnChanges(changes: SimpleChanges) {
 
-    // preserve state
-    if(this.groupFieldsConfig.length > 0){
-      this.service.setGroupedFields(this.groupFieldsConfig)
+    if (changes.groupFieldsConfig) {
+      this.service.changeMessage(changes.groupFieldsConfig.currentValue);
     }
-    this.groupedFields = this.service.getGroupedFields();
 
     const config = this.config;
     const type = typeof config;
