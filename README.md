@@ -1,5 +1,5 @@
 # Angular-QueryBuilder
-This is the enhanced version of the original angular2-query-builder that supports group options.
+This is the enhanced version from the original [angular2-query-builder]https://github.com/zebzhao/Angular-QueryBuilder that supports group options.
 
 # Getting Started
 
