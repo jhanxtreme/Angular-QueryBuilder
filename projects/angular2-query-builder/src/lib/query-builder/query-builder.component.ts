@@ -182,9 +182,11 @@ export class QueryBuilderComponent implements OnInit, OnChanges, ControlValueAcc
   ngOnChanges(changes: SimpleChanges) {
 
     if (changes.groupFieldsConfig) {
-      this.service.changeMessage(changes.groupFieldsConfig.currentValue);
+      this.service.changeMessage(changes.groupFieldsConfig.currentValue); // deep nested
+      this.service.setGroupedFields(changes.groupFieldsConfig.currentValue); // parent
+      this.groupedFields = this.service.getGroupedFields();
     }
-
+    
     const config = this.config;
     const type = typeof config;
     if (type === 'object') {
