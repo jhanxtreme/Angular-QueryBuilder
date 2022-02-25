@@ -16,7 +16,7 @@ This is the enhanced version from the original [angular2-query-builder] that sup
 
 ##### `app.module.ts`
 ```javascript
-import { QueryBuilderModule } from "angular2-query-builder";
+import { QueryBuilderModule } from "@jhanxtreme/angular2-query-builder";
 import { AppComponent } from "./app.component"
 
 @NgModule(imports: [
@@ -35,7 +35,7 @@ export class AppModule { }
 ```
 ##### `app.component.ts`
 ```javascript
-import { QueryBuilderConfig, GroupFieldsConfig } from 'angular2-query-builder';
+import { QueryBuilderConfig, GroupFieldsConfig } from '@jhanxtreme/angular2-query-builder';
 
 export class AppComponent {
   query = {
